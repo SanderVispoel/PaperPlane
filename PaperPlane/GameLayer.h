@@ -25,7 +25,6 @@
     Obstacle *_lastObstacle;
     
     int _level;
-    int _objectsOffscreen;
 }
 
 //@property (nonatomic, assign)Background *background;

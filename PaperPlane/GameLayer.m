@@ -68,8 +68,11 @@
     [self updatePositions];
     
     // check for next level
-    if ([_obstacles count] < 10) {
+    if ([_obstacles count] < 14) {
         _level++;
+        if (_level == 6)
+            _level = 1;    // TESTING
+        
         [self generateLevel];
         NSLog(@"< Level %i! >", _level);
     }
@@ -108,14 +111,13 @@
         // remove if offscreen
         if (obs.position.y > (SCREENSIZE.height + obs.contentSize.height/2)) {
             [removeObs addObject:obs];
-            _objectsOffscreen++;
         }
     }
     
     // remove obstacle
     for (Obstacle  *obsToDelete in removeObs) {
         [_obstacles removeObject:obsToDelete];
-        NSLog(@"< _obstacles count: %i >", [_obstacles count]);
+//        NSLog(@"< _obstacles count: %i >", [_obstacles count]);
     }
 }
 
@@ -123,10 +125,18 @@
 {
     int leftOrRight = 0; // 0 = left
     
-//    for (int i = 0; i < kMaxObjects; i++) {
-    for (int i = 0; i < 10; i++) { // test
+    for (int i = 0; i < 20; i++) { // test
         Obstacle *obs = [Obstacle obstacleWithLevel:_level];
-        [obs.texture setAliasTexParameters];
+        Obstacle *obs2;
+        int r = (rand()%5) + 1;
+        
+        float startSpacing = 60.0;
+        float spacing;
+        if (_level >= 0 && _level < 3) {
+            spacing = frandom_range(130, 90);
+        } else if (_level >= 3) {
+            spacing = frandom_range(100, 60);
+        }
         
         if (i == 0) {
             // left
@@ -135,26 +145,46 @@
                 obs.position = ccp(obs.contentSize.width/2, 0);
             } else {
                 // next level first obstacle
-                float posY = _lastObstacle.position.y - (_lastObstacle.contentSize.height + 20);
+                float posY = _lastObstacle.position.y - (_lastObstacle.contentSize.height + startSpacing);
                 obs.position = ccp(obs.contentSize.width/2, posY);
             }
             leftOrRight = 1;
+            
         } else {
+            
             if (leftOrRight == 0) {
-                // left
-                float posY = _lastObstacle.position.y - (obs.contentSize.height + 20);
+                // LEFT
+                float posY = _lastObstacle.position.y - (obs.contentSize.height + spacing);
                 obs.position = ccp(obs.contentSize.width/2, posY);
+                
+                // double obstacles
+                if (r == 1) {
+                    obs2 = [Obstacle obstacleWithLevel:_level];
+                    float posX = frandom_range(SCREENSIZE.width, SCREENSIZE.width + obs2.contentSize.width/5);
+                    obs2.position = ccp(posX, obs.position.y);
+                }
                 leftOrRight = 1;
             } else {
-                // right
-                float posY = _lastObstacle.position.y - (obs.contentSize.height + 20);
+                // RIGHT
+                float posY = _lastObstacle.position.y - (obs.contentSize.height + spacing);
                 obs.position = ccp(SCREENSIZE.width-obs.contentSize.width/2, posY);
+                
+                // double obstacles
+                if (r == 1) {
+                    obs2 = [Obstacle obstacleWithLevel:_level];
+                    float posX = frandom_range(-20.0, obs2.contentSize.width/8);
+                    obs2.position = ccp(posX, obs.position.y);
+                }
                 leftOrRight = 0;
             }
         }
         
         [self addChild:obs];
         [_obstacles addObject:obs];
+        if (obs2) {
+            [self addChild:obs2];
+            [_obstacles addObject:obs2];
+        }
         _lastObstacle = obs;
     }
     
@@ -164,22 +194,23 @@
 -(void)generateTransition
 {
     Obstacle *anchorObs = _lastObstacle;
+    float anchorSpacing = 60.0;
     
     // left
     for (int i = 0; i < 10; i++) {
         
         Obstacle *obstacle = [Obstacle obstacleForTransition];
+        
         if (i == 0) {
-            float posY = anchorObs.position.y - (obstacle.contentSize.height + 20);
+            float posY = anchorObs.position.y - (obstacle.contentSize.height + anchorSpacing);
             obstacle.position = ccp(obstacle.contentSize.width/2, posY);
         } else {
-            float posY = _lastObstacle.position.y - (obstacle.contentSize.height + 3);
+            float posY = _lastObstacle.position.y - (obstacle.contentSize.height + 1);
             obstacle.position = ccp(obstacle.contentSize.width/2, posY);
         }
         
         [self addChild:obstacle];
-        [_obstacles addObject:obstacle];        // put in different array?
-        
+        [_obstacles addObject:obstacle];
         _lastObstacle = obstacle;
     }
     
@@ -187,17 +218,17 @@
     for (int i = 0; i < 10; i++) {
         
         Obstacle *obstacle = [Obstacle obstacleForTransition];
+        
         if (i == 0) {
-            float posY = anchorObs.position.y - (obstacle.contentSize.height + 20);
+            float posY = anchorObs.position.y - (obstacle.contentSize.height + anchorSpacing);
             obstacle.position = ccp(SCREENSIZE.width - obstacle.contentSize.width/2, posY);
         } else {
-            float posY = _lastObstacle.position.y - (obstacle.contentSize.height + 3);
+            float posY = _lastObstacle.position.y - (obstacle.contentSize.height + 1);
             obstacle.position = ccp(SCREENSIZE.width - obstacle.contentSize.width/2, posY);
         }
         
         [self addChild:obstacle];
-        [_obstacles addObject:obstacle];        // put in different array?
-        
+        [_obstacles addObject:obstacle];
         _lastObstacle = obstacle;
     }
 }

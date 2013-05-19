@@ -30,15 +30,15 @@
     
     // check rotation for horizontal speed, bigger angle = faster
     if (rotation == 0.0) {
-        _velocity = 5.0f;
+        _velocity = 8.0f;
     } else if (rotation >= 5.0 && rotation < 10.0) {
-        _velocity = 5.0f;
+        _velocity = 7.0f;
     } else if (rotation >= 10.0 && rotation < 30.0) {
-        _velocity = 4.5f;
+        _velocity = 6.5f;
     } else if (rotation >= 30.0 && rotation < 45.0) {
-        _velocity = 3.7f;
+        _velocity = 5.7f;
     } else if (rotation >= 45.0 && rotation < 60.0) {
-        _velocity = 2.5f;
+        _velocity = 3.5f;
     } else if (rotation >= 60.0 && rotation <= 75.0) {
         _velocity = 2.0f;
     }
